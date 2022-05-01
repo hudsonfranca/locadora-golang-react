@@ -1,0 +1,70 @@
+version: "3.7"
+services:
+  locadora-db:
+    image: "postgres:alpine"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=postgres
+      - PG_DATA=/var/lib/postgresql/data
+    networks:
+      - locadora
+  backend:
+    container_name: locadora-backend
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app
+    # environment:
+    #   - PG_HOST=postgres
+    #   - PG_PORT=5432
+    #   - PG_USER=root
+    #   - PG_PASSWORD=password
+    #   - PG_DATABASE=postgres
+    #   - PORT=4000
+    #   - JWT_KEY=c2VjcmV0
+    ports:
+      - "3001:3001"
+    networks:
+      - locadora
+    depends_on:
+      - locadora-db
+    restart: always
+  frontend:
+    container_name: locadora-frontend
+    ports:
+      - "3333:3333"
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - locadora
+    depends_on:
+      - backend
+    restart: always
+  adminer:
+    image: adminer
+    depends_on:
+      - locadora-db
+    environment:
+      ADMINER_DEFAULT_DB_DRIVER: pgsql
+      ADMINER_DEFAULT_DB_HOST: locadora-db
+      ADMINER_DEFAULT_DB_NAME: postgres
+      ADMINER_DEFAULT_DB_PASSWORD: admin
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - locadora
+networks:
+  locadora:
+volumes:
+  pgdata:
