@@ -13,8 +13,6 @@
 
 <br/>
 
-### Docker Compose
-
 Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas: [Docker](https://www.docker.com/), [Docker Compose](https://docs.docker.com/compose/).
 
 ```bash
